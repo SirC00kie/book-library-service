@@ -31,9 +31,9 @@ func main() {
 		panic(err)
 	}
 
-	storage := db.NewStorage(mongoDBClient, cfgMongo.Collection, logger)
+	repository := db.NewRepository(mongoDBClient, cfgMongo.Collection, logger)
 
-	service := book.NewService(storage)
+	service := book.NewService(repository)
 
 	logger.Info("register book handler")
 	handler := book.NewHandler(logger, service)

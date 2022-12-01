@@ -132,7 +132,7 @@ func (d *db) Delete(ctx context.Context, id string) error {
 
 }
 
-func NewStorage(database *mongo.Database, collection string, logger *logging.Logger) book.Storage {
+func NewRepository(database *mongo.Database, collection string, logger *logging.Logger) book.Repository {
 
 	return &db{
 		collection: database.Collection(collection),

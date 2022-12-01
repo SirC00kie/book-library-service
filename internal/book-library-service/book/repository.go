@@ -2,7 +2,7 @@ package book
 
 import "context"
 
-type Storage interface {
+type Repository interface {
 	Create(ctx context.Context, book Book) (string, error)
 	FindAll(ctx context.Context) ([]Book, error)
 	FindOne(ctx context.Context, id string) (Book, error)

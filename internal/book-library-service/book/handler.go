@@ -30,56 +30,90 @@ func NewHandler(logger *logging.Logger, service *Service) handlers.Handler {
 
 func (h *handler) Register(router *httprouter.Router) {
 	router.HandlerFunc(http.MethodGet, usersURL, apperror.Middleware(h.GetList))
-	router.HandlerFunc(http.MethodPost, usersURL, apperror.Middleware(h.CreateUser))
-	router.HandlerFunc(http.MethodGet, userURL, apperror.Middleware(h.GetUserByUUID))
-	router.HandlerFunc(http.MethodPut, userURL, apperror.Middleware(h.UpdateUser))
-	router.HandlerFunc(http.MethodPatch, userURL, apperror.Middleware(h.PartialUpdateUser))
-	router.HandlerFunc(http.MethodDelete, userURL, apperror.Middleware(h.DeleteUser))
+	router.HandlerFunc(http.MethodPost, usersURL, apperror.Middleware(h.CreateBook))
+	router.HandlerFunc(http.MethodGet, userURL, apperror.Middleware(h.GetBookByUUID))
+	router.HandlerFunc(http.MethodPut, userURL, apperror.Middleware(h.UpdateBook))
+	router.HandlerFunc(http.MethodDelete, userURL, apperror.Middleware(h.DeleteBook))
 }
 
 func (h *handler) GetList(writer http.ResponseWriter, request *http.Request) error {
 	b, err := h.bookService.FindAll(context.Background())
 	if err != nil {
 		writer.WriteHeader(400)
-		return fmt.Errorf("failed get list: %v", err)
-		writer.Write([]byte("this is list of users"))
+		return fmt.Errorf("failed get list books: %v", err)
 	}
 	book, err := json.Marshal(b)
 	writer.WriteHeader(200)
-	writer.Write([]byte(book))
+	writer.Write(book)
 
 	return nil
 }
 
-func (h *handler) CreateUser(writer http.ResponseWriter, request *http.Request) error {
+func (h *handler) CreateBook(writer http.ResponseWriter, request *http.Request) error {
+	b, err := h.bookService.Create(context.Background(), CreateUserDTO{
+		Name:        "1",
+		Type:        "2",
+		Content:     "3",
+		Author:      "4",
+		Year:        2000,
+		Description: "5",
+	})
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed create book: %v", err)
+	}
+	bookId, err := json.Marshal(b)
 	writer.WriteHeader(201)
-	writer.Write([]byte("this is create book"))
+	writer.Write(bookId)
 
 	return nil
 }
 
-func (h *handler) GetUserByUUID(writer http.ResponseWriter, request *http.Request) error {
+func (h *handler) GetBookByUUID(writer http.ResponseWriter, request *http.Request) error {
+	err := request.ParseForm()
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed parse form: %v", err)
+	}
+	id := request.Form.Get("uuid")
+	b, err := h.bookService.FindOne(context.Background(), id)
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed find book by uuid: %v", err)
+	}
+	book, err := json.Marshal(b)
 	writer.WriteHeader(200)
-	writer.Write([]byte("this is book by uuid"))
+	writer.Write(book)
 
 	return nil
 }
 
-func (h *handler) UpdateUser(writer http.ResponseWriter, request *http.Request) error {
+func (h *handler) UpdateBook(writer http.ResponseWriter, request *http.Request) error {
+	err := h.bookService.Update(context.Background(), Book{
+		ID:          "6388dc0ceba6baffd6e6d897",
+		Name:        "111",
+		Type:        "222",
+		Content:     "333",
+		Author:      "444",
+		Year:        2222,
+		Description: "5555",
+	})
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed update book: %v", err)
+	}
 	writer.WriteHeader(204)
 	writer.Write([]byte("this is update book"))
 
 	return nil
 }
 
-func (h *handler) PartialUpdateUser(writer http.ResponseWriter, request *http.Request) error {
-	writer.WriteHeader(204)
-	writer.Write([]byte("this is partial update book"))
-
-	return nil
-}
-
-func (h *handler) DeleteUser(writer http.ResponseWriter, request *http.Request) error {
+func (h *handler) DeleteBook(writer http.ResponseWriter, request *http.Request) error {
+	err := h.bookService.Delete(context.Background(), "6388dc0ceba6baffd6e6d897")
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed delete book: %v", err)
+	}
 	writer.WriteHeader(204)
 	writer.Write([]byte("this is delete book"))
 
