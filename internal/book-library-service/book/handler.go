@@ -70,13 +70,8 @@ func (h *handler) CreateBook(writer http.ResponseWriter, request *http.Request) 
 }
 
 func (h *handler) GetBookByUUID(writer http.ResponseWriter, request *http.Request) error {
-	err := request.ParseForm()
-	if err != nil {
-		writer.WriteHeader(400)
-		return fmt.Errorf("failed parse form: %v", err)
-	}
-	id := request.Form.Get("uuid")
-	b, err := h.bookService.FindOne(context.Background(), id)
+	uuid := request.URL.Query().Get("uuid")
+	b, err := h.bookService.FindOne(context.Background(), uuid)
 	if err != nil {
 		writer.WriteHeader(400)
 		return fmt.Errorf("failed find book by uuid: %v", err)

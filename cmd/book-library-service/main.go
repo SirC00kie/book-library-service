@@ -4,6 +4,7 @@ import (
 	"book-library-service/internal/book-library-service/book"
 	"book-library-service/internal/book-library-service/book/db"
 	"book-library-service/internal/book-library-service/config"
+	"book-library-service/internal/book-library-service/handlers"
 	"book-library-service/pkg/client/mongodb"
 	"book-library-service/pkg/logging"
 	"context"
@@ -35,14 +36,19 @@ func main() {
 
 	service := book.NewService(repository)
 
+	logger.Info("add cors settings")
+	corsSettings := handlers.CorsSettings()
+
 	logger.Info("register book handler")
 	handler := book.NewHandler(logger, service)
-	handler.Register(router)
 
-	start(router, cfg)
+	handler.Register(router)
+	h := corsSettings.Handler(router)
+
+	start(h, cfg)
 }
 
-func start(router *httprouter.Router, cfg *config.Config) {
+func start(h http.Handler, cfg *config.Config) {
 	logger := logging.GetLogger()
 	logger.Info("start application")
 
@@ -71,7 +77,7 @@ func start(router *httprouter.Router, cfg *config.Config) {
 	}
 
 	server := &http.Server{
-		Handler:      router,
+		Handler:      h,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
