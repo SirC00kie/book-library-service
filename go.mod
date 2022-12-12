@@ -4,7 +4,9 @@ go 1.19
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.4.1 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect

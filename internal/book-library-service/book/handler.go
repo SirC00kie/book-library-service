@@ -50,13 +50,21 @@ func (h *handler) GetList(writer http.ResponseWriter, request *http.Request) err
 }
 
 func (h *handler) CreateBook(writer http.ResponseWriter, request *http.Request) error {
+	req := &CreateUserDTO{}
+	err := json.NewDecoder(request.Body).Decode(req)
+
+	if err != nil {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed create book: %v", err)
+	}
+
 	b, err := h.bookService.Create(context.Background(), CreateUserDTO{
-		Name:        "1",
-		Type:        "2",
-		Content:     "3",
-		Author:      "4",
-		Year:        2000,
-		Description: "5",
+		Name:        req.Name,
+		Type:        req.Type,
+		Content:     req.Content,
+		Author:      req.Author,
+		Year:        req.Year,
+		Description: req.Description,
 	})
 	if err != nil {
 		writer.WriteHeader(400)
@@ -71,6 +79,10 @@ func (h *handler) CreateBook(writer http.ResponseWriter, request *http.Request) 
 
 func (h *handler) GetBookByUUID(writer http.ResponseWriter, request *http.Request) error {
 	uuid := request.URL.Query().Get("uuid")
+	if uuid == "" {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed get book by uuid, %v", uuid)
+	}
 	b, err := h.bookService.FindOne(context.Background(), uuid)
 	if err != nil {
 		writer.WriteHeader(400)
@@ -104,10 +116,15 @@ func (h *handler) UpdateBook(writer http.ResponseWriter, request *http.Request) 
 }
 
 func (h *handler) DeleteBook(writer http.ResponseWriter, request *http.Request) error {
-	err := h.bookService.Delete(context.Background(), "6388dc0ceba6baffd6e6d897")
+	uuid := request.URL.Query().Get("uuid")
+	if uuid == "" {
+		writer.WriteHeader(400)
+		return fmt.Errorf("failed delete book, %v", uuid)
+	}
+	err := h.bookService.Delete(context.Background(), uuid)
 	if err != nil {
 		writer.WriteHeader(400)
-		return fmt.Errorf("failed delete book: %v", err)
+		return fmt.Errorf("failed delete book, %v", err)
 	}
 	writer.WriteHeader(204)
 	writer.Write([]byte("this is delete book"))

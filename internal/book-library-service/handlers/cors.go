@@ -12,6 +12,8 @@ func CorsSettings() *cors.Cors {
 		},
 		AllowedMethods: []string{
 			http.MethodGet,
+			http.MethodDelete,
+			http.MethodPost,
 		},
 		AllowedHeaders:     []string{},
 		ExposedHeaders:     []string{},

@@ -5,9 +5,8 @@ import (
 	"book-library-service/internal/book-library-service/book/db"
 	"book-library-service/internal/book-library-service/config"
 	"book-library-service/internal/book-library-service/handlers"
-	"book-library-service/pkg/client/mongodb"
+	"book-library-service/pkg/client/mysqldb"
 	"book-library-service/pkg/logging"
-	"context"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net"
@@ -25,22 +24,32 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	cfgMongo := cfg.MongoDb
-	mongoDBClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host, cfgMongo.Port, cfgMongo.Username,
-		cfgMongo.Password, cfgMongo.Database, cfgMongo.AuthDB)
+	cfgMySql := cfg.MySql
+
+	mySqlClient, err := mysqldb.NewClient(cfgMySql.Host, cfgMySql.Port, cfgMySql.Username,
+		cfgMySql.Password, cfgMySql.Database, cfgMySql.Net)
 	if err != nil {
 		panic(err)
 	}
+	mySqlRepository := db.NewRepositoryM(mySqlClient, logger)
+	serviceMySql := book.NewService(mySqlRepository)
 
-	repository := db.NewRepository(mongoDBClient, cfgMongo.Collection, logger)
-
-	service := book.NewService(repository)
+	//cfgMongo := cfg.MongoDb
+	//mongoDBClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host, cfgMongo.Port, cfgMongo.Username,
+	//	cfgMongo.Password, cfgMongo.Database, cfgMongo.AuthDB)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//repository := db.NewRepository(mongoDBClient, cfgMongo.Collection, logger)
+	//
+	//service := book.NewService(repository)
 
 	logger.Info("add cors settings")
 	corsSettings := handlers.CorsSettings()
 
 	logger.Info("register book handler")
-	handler := book.NewHandler(logger, service)
+	handler := book.NewHandler(logger, serviceMySql)
 
 	handler.Register(router)
 	h := corsSettings.Handler(router)

@@ -1,5 +1,4 @@
 ---
-
 is_debug: true
 listen:
   type: port
@@ -13,4 +12,11 @@ mongodb:
   username:
   password:
   collection: books
+mysql:
+  host: 94.228.124.31
+  port: 3306
+  database: test
+  username: test
+  password: test
+  net: tcp
 

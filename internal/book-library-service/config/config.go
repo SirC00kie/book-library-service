@@ -22,6 +22,14 @@ type Config struct {
 		Password   string `yaml:"password"`
 		Collection string `yaml:"collection"`
 	} `yaml:"mongodb" json:"mongodb"`
+	MySql struct {
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		Database string `yaml:"database"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+		Net      string `yaml:"net"`
+	} `yaml:"mysql" json:"mysql"`
 }
 
 var instance *Config
